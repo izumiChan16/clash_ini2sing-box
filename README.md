@@ -3,4 +3,4 @@ This project aims to migrate from the clash configuration file to the sing-box c
 
 
 ## 感谢
-(Toperlock/sing-box-subscribe)[https://github.com/Toperlock/sing-box-subscribe]
+[Toperlock/sing-box-subscribe](https://github.com/Toperlock/sing-box-subscribe)
