@@ -81,6 +81,9 @@ def parse_list_file(list_links):
 
     # 删除不在字典中的pattern
     df = df[df['pattern'].isin(map_dict.keys())].reset_index(drop=True)
+
+    # 删除重复行
+    df = df.drop_duplicates().reset_index(drop=True)
     # 替换pattern为字典中的值
     df['pattern'] = df['pattern'].replace(map_dict)
 
@@ -117,7 +120,6 @@ def generate_rules(rules_list, no_group_rules):
 
 def parse_groups(groups):
     # 提取组名称和组内容
-    # 🚀 节点选择`select`[]♻️ 自动选择`[]🚀 手动切换`[]🔎 IPLC`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇺🇲 美国节点`[]🇬🇧 英国节点`[]🇰🇷 韩国节点`[]DIRECT
     group_name = []
     type_name = []
     outbounds_name = []
@@ -176,8 +178,18 @@ def parse_groups(groups):
     return groups_dict
 
 
-def load_to_template():
-    pass
+def load_to_template(rules_dict_list, no_group_rules_dict_list, final_value, groups_dict, clash_mode):
+    # 加载模板
+    with open('template.json', 'r', encoding='utf8') as f:
+        template = json.load(f)
+
+    # 在template["outbounds"]前面插入groups_dict
+    template["outbounds"] = groups_dict + template["outbounds"]
+    template["route"]["rules"] = template["route"]["rules"] + rules_dict_list + no_group_rules_dict_list + clash_mode
+    template["route"]["final"] = final_value
+
+    with open('config.json', 'w', encoding='utf8') as f:
+        json.dump(template, f, ensure_ascii=False, indent=2)
 
 
 def main():
@@ -186,17 +198,19 @@ def main():
     rules_dict_list, no_group_rules_dict_list, final_value = generate_rules(rules_list, no_group_rules)
     groups_dict = parse_groups(groups)
 
-    # 加载模板
-    with open('template.json', 'r', encoding='utf8') as f:
-        template = json.load(f)
+    # 临时变量
+    clash_mode = [
+        {
+            "clash_mode": "direct",
+            "outbound": "direct"
+        },
+        {
+            "clash_mode": "global",
+            "outbound": groups_dict[0]['tag']
+        }
+    ]
 
-    # 在template["outbounds"]前面插入groups_dict
-    template["outbounds"] = groups_dict + template["outbounds"]
-    template["route"]["rules"] = template["route"]["rules"] + rules_dict_list + no_group_rules_dict_list
-    template["route"]["final"] = final_value
-
-    with open('config.json', 'w', encoding='utf8') as f:
-        json.dump(template, f, ensure_ascii=False, indent=2)
+    load_to_template(rules_dict_list, no_group_rules_dict_list, final_value, groups_dict, clash_mode)
 
 
 if __name__ == '__main__':
