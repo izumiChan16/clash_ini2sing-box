@@ -198,7 +198,7 @@ def main():
     rules_dict_list, no_group_rules_dict_list, final_value = generate_rules(rules_list, no_group_rules)
     groups_dict = parse_groups(groups)
 
-    # 临时变量
+    # clash_mode相关设置
     clash_mode = [
         {
             "clash_mode": "direct",
