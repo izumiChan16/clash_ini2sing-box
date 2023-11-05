@@ -17,8 +17,8 @@ This project aims to migrate from the clash configuration file to the sing-box c
 ![](https://github.com/izumiChan16/clash_ini2sing-box/raw/master/doc/2023-11-05%20104003.png)
 
 ## BUG
-1. 分流后的规则堪堪可用，问题集中在list解析的顺序，在本项目中粗暴地将同一outbound的规则统一到一起，导致分流顺序出了问题。
-   方案：每一条list按顺序解析为单独一个rule，而不是合并在一起
+1. ~~分流后的规则堪堪可用，问题集中在list解析的顺序，在本项目中粗暴地将同一outbound的规则统一到一起，导致分流顺序出了问题。
+   方案：每一条list按顺序解析为单独一个rule，而不是合并在一起~~（已修复）
 
 ## 有待完善
 1. 本项目目前并未覆盖到所有的配置文件情况，仅覆盖大部分用户的使用情况，如有需要请自行修改代码。
