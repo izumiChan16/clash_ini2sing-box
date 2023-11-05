@@ -42,32 +42,21 @@ def parse_rules(rules):
         outbound_name.append(rule.split(',')[0])
         list_link.append(rule.split(',')[1])
 
-    # 生成字典
-    rules_dict = {}
-    # 处理重复的outbound
-    for i, key in enumerate(outbound_name):
-        if key not in rules_dict:
-            rules_dict[key] = [list_link[i]]
-        else:
-            rules_dict[key].append(list_link[i])
+    # 生成df
+    rules_df = pd.DataFrame({'outbound': outbound_name, 'rule': list_link})
 
-    rules_list = []
-    # 生成列表, "outbound"的值为key，""rule"的值为相应的links
-    for key, value in rules_dict.items():
-        rules_list.append({'outbound': key, 'rule': value})
-
-    return rules_list, no_group_rules
+    return rules_df, no_group_rules
 
 
 def read_csv_and_append(link):
-    return pd.read_csv(link, header=None, names=['pattern', 'address'], on_bad_lines='warn')
+    return pd.read_csv(link, header=None, names=['pattern', 'address', 'other'], on_bad_lines='warn')
 
 
 def parse_list_file(list_links):
     # 读取全部链接，拼接为一个df， 读取list链接，设置header为pattern和address
     # 使用多线程池来并行处理链接
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = list(executor.map(read_csv_and_append, list_links))
+        results = list(executor.map(read_csv_and_append, [list_links]))
         df = pd.concat(results, ignore_index=True)
 
     # 删除pattern中包含#号的行
@@ -93,16 +82,15 @@ def parse_list_file(list_links):
     return result_dict
 
 
-def generate_rules(rules_list, no_group_rules):
+def generate_rules(rules_df, no_group_rules):
     # 遍历rules_list
     # 将rule传入parse_list_file函数，返回字典
     rules_dict_list = []
 
-    for rule in rules_list:
-        # 传入list链接的列表，返回字典
-        rule_dict = parse_list_file(rule['rule'])
-        rule_dict['outbound'] = rule['outbound']
-        rules_dict_list.append(rule_dict)
+    for i, rule in enumerate(rules_df['rule']):
+        rules_dict = parse_list_file(rule)
+        rules_dict['outbound'] = rules_df['outbound'][i]
+        rules_dict_list.append(rules_dict)
 
     no_group_rules_dict_list = []
     final_value = ''
@@ -194,8 +182,8 @@ def load_to_template(rules_dict_list, no_group_rules_dict_list, final_value, gro
 
 def main():
     rules, groups = read_file('SelfSimple.ini')
-    rules_list, no_group_rules = parse_rules(rules)
-    rules_dict_list, no_group_rules_dict_list, final_value = generate_rules(rules_list, no_group_rules)
+    rules_df, no_group_rules = parse_rules(rules)
+    rules_dict_list, no_group_rules_dict_list, final_value = generate_rules(rules_df, no_group_rules)
     groups_dict = parse_groups(groups)
 
     # clash_mode相关设置
