@@ -1,6 +1,9 @@
 # clash_ini2sing-box
 This project aims to migrate from the clash configuration file to the sing-box configuration file
 
+## 2023-11-19更新
+https://suburl.v1.mk/ 已经支持singbox转换
+本项目仅为过渡时期使用，现在市面上出现了集成的转换产品，故不再更新
 
 ## 项目期许
 基于clash配置文件，将clash的分流规则，原汁原味地转换为sing-box的分流规则
